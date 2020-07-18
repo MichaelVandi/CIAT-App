@@ -1,67 +1,157 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
+
+import IconWithText from '../buttons/IconWithText';
+import UpdatesPage from '../resources/pages/UpdatesPage';
+import SymptomsPage from '../resources/pages/SymptomsPage';
+import ReportingPage from '../resources/pages/ReportingPage';
+import NextStepsPage from '../resources/pages/NextStepsPage';
+import SupplyLocatorPage from '../resources/pages/SupplyLocatorPage';
 
 // create a component
 class Resources extends Component {
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        screen: 'main'
+      };
+
+      this.bindMethods();
+    }
 
     render() {
+      let markup = null;
+
+      const screenData = {
+        handleClickBackButton: this.handleClickBackButton
+      };
+
+      switch(this.state.screen) {
+        case 'main':
+          markup = this.buildResourcesScreen();
+          break;
+
+        case 'updates':
+          markup = <UpdatesPage {...screenData} />;
+          break;
+
+        case 'symptoms':
+          markup = <SymptomsPage {...screenData} />;
+          break;
+
+        case 'reporting':
+          markup = <ReportingPage {...screenData} />;
+          break;
+
+        case 'nextsteps':
+          markup = <NextStepsPage {...screenData} />;
+          break;
+
+        case 'locator':
+          markup = <SupplyLocatorPage {...screenData} />;
+          break;
+
+        default:
+          break;
+      }
+
+      return markup;
+    }
+
+    bindMethods() {
+      this.handleClickUpdatesLink = this.handleClickUpdatesLink.bind(this);
+      this.handleClickBackButton = this.handleClickBackButton.bind(this);
+      this.handleClickSymptomsLink = this.handleClickSymptomsLink.bind(this);
+      this.handleClickReportingLink = this.handleClickReportingLink.bind(this);
+      this.handleClickNextStepsLink = this.handleClickNextStepsLink.bind(this);
+      this.handleClickLocatorLink = this.handleClickLocatorLink.bind(this);
+
+      return this;
+    }
+
+    buildResourcesScreen() {
+      const commonData = {
+            color: '#2D3047',
+            name: 'md-search',
+            raised: true,
+            type: 'ionicon'
+          },
+          links = [
+            {
+              ...commonData,
+              handleClick: this.handleClickUpdatesLink,
+              text: 'COVID-19 Updates'
+            },
+            {
+              ...commonData,
+              handleClick: this.handleClickSymptomsLink,
+              text: 'COVID-19 Symptoms'
+            },
+            {
+              ...commonData,
+              handleClick: this.handleClickReportingLink,
+              text: 'COVID-19 Self Reporting'
+            },
+            {
+              ...commonData,
+              handleClick: this.handleClickNextStepsLink,
+              text: 'Next Steps if you have COVID-19'
+            },
+            {
+              ...commonData,
+              handleClick: this.handleClickLocatorLink,
+              text: 'Health Supply Locator'
+            }
+          ],
+          builtLinks = links.map((data, idx) => {
+            return <IconWithText key={idx} {...data} />;
+          })
+
+
         return (
-            <View style={styles.container}>
-              <View style={styles.resourceView}>
-                <Icon
-                    name = "md-search"
-                    type = "ionicon"
-                    raised = {true}
-                    color = "#2D3047"
-                  />
-                <Text style={styles.resourceText}>COVID-19 Updates</Text>
-              </View>
-
-              <View style={styles.resourceView}>
-                <Icon
-                    name = "md-search"
-                    type = "ionicon"
-                    raised = {true}
-                    color = "#2D3047"
-                  />
-                <Text style={styles.resourceText}>COVID-19 Symptoms</Text>
-              </View>
-
-
-              <View style={styles.resourceView}>
-                <Icon
-                    name = "md-search"
-                    type = "ionicon"
-                    raised = {true}
-                    color = "#2D3047"
-                  />
-                <Text style={styles.resourceText}>COVID-19 Self Reporting</Text>
-              </View>
-
-
-              <View style={styles.resourceView}>
-                <Icon
-                    name = "md-search"
-                    type = "ionicon"
-                    raised = {true}
-                    color = "#2D3047"
-                  />
-                <Text style={styles.resourceText}>Next Steps if you have COVID-19</Text>
-              </View>
-
-              <View style={styles.resourceView}>
-                <Icon
-                    name = "md-search"
-                    type = "ionicon"
-                    raised = {true}
-                    color = "#2D3047"
-                  />
-                <Text style={styles.resourceText}>Health Supply Locator</Text>
-              </View>
-            </View>
+          <View style={styles.container}>
+            {builtLinks}
+          </View>
         );
+    }
+
+    handleClickBackButton() {
+      this.setState({
+        screen: 'main'
+      });
+    }
+
+    handleClickUpdatesLink() {
+      this.setState({
+        screen: 'updates'
+      });
+    }
+
+    handleClickSymptomsLink() {
+      this.setState({
+        screen: 'symptoms'
+      });
+    }
+
+    handleClickReportingLink() {
+      this.setState({
+        screen: 'reporting'
+      });
+    }
+
+    handleClickNextStepsLink() {
+      this.setState({
+        screen: 'nextsteps'
+      });
+    }
+
+    handleClickLocatorLink() {
+      this.setState({
+        screen: 'locator'
+      });
     }
 }
 
@@ -70,16 +160,6 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       justifyContent: 'center',
-    },
-    resourceView: {
-      display: 'flex',
-      flexDirection: 'row',
-      
-    },
-    resourceText: {
-      fontSize: 20,
-      paddingTop: 15,
-      
     }
   });
 
