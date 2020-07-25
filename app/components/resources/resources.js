@@ -30,7 +30,7 @@ class Resources extends Component {
       };
 
       switch(this.state.screen) {
-        case 'main':
+        case 'main': 
           markup = this.buildResourcesScreen();
           break;
 
@@ -74,35 +74,38 @@ class Resources extends Component {
 
     buildResourcesScreen() {
       const commonData = {
-            color: '#2D3047',
-            name: 'md-search',
-            raised: true,
+            color: '#848484',
             type: 'ionicon'
           },
           links = [
             {
               ...commonData,
               handleClick: this.handleClickUpdatesLink,
+              name: 'md-globe',
               text: 'COVID-19 Updates'
             },
             {
               ...commonData,
               handleClick: this.handleClickSymptomsLink,
+              name: 'md-thermometer',
               text: 'COVID-19 Symptoms'
             },
             {
               ...commonData,
               handleClick: this.handleClickReportingLink,
+              name: 'md-person',
               text: 'COVID-19 Self Reporting'
             },
             {
               ...commonData,
               handleClick: this.handleClickNextStepsLink,
+              name: 'md-arrow-up',
               text: 'Next Steps if you have COVID-19'
             },
             {
               ...commonData,
               handleClick: this.handleClickLocatorLink,
+              name: 'md-medkit',
               text: 'Health Supply Locator'
             }
           ],
@@ -159,7 +162,7 @@ class Resources extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start'
     }
   });
 

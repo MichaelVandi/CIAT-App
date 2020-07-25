@@ -11,7 +11,14 @@ class IconWithText extends Component {
             name: this.props.name,
             type: this.props.type,
             raised: this.props.raised,
-            color: this.props.color
+            containerStyle: {
+              width: 60,
+              height: 60,
+              display: 'flex',
+              justifyContent: 'center'
+            },
+            color: this.props.color,
+            size: 30
           },
           buttonData = {
             onPress: this.props.handleClick
@@ -34,11 +41,13 @@ class IconWithText extends Component {
 const styles = StyleSheet.create({
     buttonText: {
       fontSize: 20,
-      paddingTop: 15,
+      paddingTop: 15
     },
     buttonView: {
       display: 'flex',
       flexDirection: 'row',
+      borderBottomColor: 'gray',
+      borderBottomWidth: 1
     }
   });
 

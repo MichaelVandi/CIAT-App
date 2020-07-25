@@ -11,6 +11,12 @@ class IconButton extends Component {
             name: this.props.name,
             type: this.props.type,
             raised: this.props.raised,
+            containerStyle: {
+              width: 60,
+              height: 60,
+              display: 'flex',
+              justifyContent: 'center'
+            },
             color: this.props.color
           },
           buttonData = {
