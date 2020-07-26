@@ -1,26 +1,60 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import IconButton from '../../buttons/IconButton';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import HeaderWithIcon from '../../listings/HeaderWithIcon';
 
 // create a component
 class SymptomsPage extends Component {
 
     render() {
-        const backButtonData = {
+        const headerData = {
           handleClick: this.props.handleClickBackButton,
-          color: '#2D3047',
+          header: 'COVID-19 Symptoms',
+          color: '#848484',
           name: 'md-arrow-back',
-          raised: true,
           type: 'ionicon'
         };
 
         return (
           <View>
-            <IconButton {...backButtonData} />
-            <Text>
-              COVID-19 Symptoms
-            </Text>
+            <HeaderWithIcon {...headerData} />
+            <ScrollView style={styles.paragraph}>
+              <Text style={styles.paragraphText}>
+                COVID-19 affects different people in different ways. Most infected people will develop mild to moderate illness and recover without hospitalization.{'\n'}
+                {'\n'}
+                Most common symptoms:{'\n'}
+                {'\n'}
+                - fever.{'\n'}
+                - dry cough.{'\n'}
+                - tiredness.{'\n'}
+                {'\n'}
+                Less common symptoms:{'\n'}
+                {'\n'}
+                - aches and pains.{'\n'}
+                - sore throat.{'\n'}
+                - diarrhoea.{'\n'}
+                - conjunctivitis.{'\n'}
+                - headache.{'\n'}
+                - loss of taste or smell.{'\n'}
+                - a rash on skin, or discolouration of fingers or toes.{'\n'}
+                {'\n'}
+                Serious symptoms:{'\n'}
+                {'\n'}
+                - difficulty breathing or shortness of breath.{'\n'}
+                - chest pain or pressure.{'\n'}
+                - loss of speech or movement.{'\n'}
+                {'\n'}
+                Seek immediate medical attention if you have serious symptoms.  Always call before visiting your doctor or health facility.{'\n'}
+                {'\n'}
+                People with mild symptoms who are otherwise healthy should manage their symptoms at home. {'\n'}
+                {'\n'}
+                On average it takes 5–6 days from when someone is infected with the virus for symptoms to show, however it can take up to 14 days.{'\n'} 
+                {'\n'}
+                <Text style={styles.sourceText}>
+                  Source: WHO (https://www.who.int/health-topics/coronavirus){'\n'}
+                </Text>
+              </Text>
+            </ScrollView>
           </View>
         );
     }
@@ -28,7 +62,16 @@ class SymptomsPage extends Component {
 
 // define your styles
 const styles = StyleSheet.create({
-
+    sourceText: {
+      fontStyle: 'italic'
+    },
+    paragraph: {
+      padding: 10, 
+      marginBottom: 55
+    },
+    paragraphText: {
+      fontSize: 17
+    }
   });
 
 //make this component available to the app

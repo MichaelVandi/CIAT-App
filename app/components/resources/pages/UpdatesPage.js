@@ -7,6 +7,7 @@ import Listing from '../../listings/Listing';
 import ArticleListingItem from '../../listings/ArticleListingItem';
 import PageHeader from '../../listings/PageHeader';
 import ArticleDetailPage from '../pages/ArticleDetailPage';
+import HeaderWithIcon from '../../listings/HeaderWithIcon';
 
 // create a component
 class UpdatesPage extends Component {
@@ -48,28 +49,19 @@ class UpdatesPage extends Component {
     }
 
     render() {
-        const backButtonData = {
+        const markup = this.state.initializing ? this.buildLoadingState() : this.buildPage(),
+          headerData = {
+            header: this.state.header,
             handleClick: this.state.selectedArticle ? this.handleClickBack : this.props.handleClickBackButton,
             color: '#848484',
             name: 'md-arrow-back',
-            type: 'ionicon'
-          },
-          markup = this.state.initializing ? this.buildLoadingState() : this.buildPage(),
-          headerData = {
-            header: this.state.header,
+            type: 'ionicon',
             subheader: this.state.subheader
           };
 
         return (
-          <View style={{color: 'pink'}}>
-            <View style={styles.headerWrapper}>
-              <View style={styles.backButtonWrapper}>
-                <IconButton {...backButtonData} />
-              </View>
-              <View style={styles.pageHeaderWrapper} >
-                <PageHeader {...headerData}/>
-              </View>
-            </View>
+          <View>
+            <HeaderWithIcon {...headerData} />
             {markup}
           </View>
         );
@@ -121,19 +113,7 @@ class UpdatesPage extends Component {
 
 // define your styles
 const styles = StyleSheet.create({
-    headerWrapper: {
-      display: 'flex',
-      flexDirection: 'row'
-    },
-    pageHeaderWrapper: {
-      marginRight: 60,
-      alignSelf: 'center',
-      flex: 1
-    },  
-    backButtonWrapper: {
-      alignSelf: 'flex-start',
-      flexBasis: 60
-    }
+    
   });
 
 //make this component available to the app
