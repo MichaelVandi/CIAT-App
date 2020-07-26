@@ -65,10 +65,9 @@ class NextStepsPage extends Component {
                    {'\n'}{'\n'}
                    - Seek immediate care or call 911 if they think it is an emergency.
                    {'\n'}{'\n'}
-
-                </Text>
-                <Text style={styles.sourceText}>
-                  Source: Patient First (https://www.patientfirst.com/covid-test-results{'\n'}{'\n'}
+                   <Text style={styles.sourceText}>
+                    Source: Patient First (https://www.patientfirst.com/covid-test-results{'\n'}{'\n'}
+                  </Text>
                 </Text>
               </ScrollView>
               <View style={styles.buttonWrapper}> 
