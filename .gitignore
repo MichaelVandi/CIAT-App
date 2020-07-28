@@ -57,3 +57,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Ignoring stuff from global/hidden
+app/components/globalVariables/hidden.js
