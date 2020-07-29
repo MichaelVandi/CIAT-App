@@ -238,7 +238,6 @@ class App extends React.Component {
     }
     return (
       <PaperProvider theme = {theme}>
-
         <SideMenu isOpen = {this.state.sideMenuOpen} onChange={isOpen => this.updateMenuState(isOpen)}
           menu = {menu}>
           <Appbar.Header>
@@ -249,8 +248,7 @@ class App extends React.Component {
             title = "CIAT"
           />
         </Appbar.Header>
-        <View>
-
+        
           <Modal
             animationType="slide"
             transparent={true}
@@ -263,9 +261,8 @@ class App extends React.Component {
               </TouchableOpacity>
               {this.ShowMenu()}
             </View>
-
-
           </Modal>
+
           { this.state.showSplash &&
             <Modal
               animationType='none'
@@ -274,17 +271,14 @@ class App extends React.Component {
               >
               <View style={styles.splashModal}>
                 <Image
-                  style={styles.splashLogo}
+                  style={styles.splashLogoStyles}
                   source={require('./logo_ciat.png')}
-                  // source={require('./app/components/logo_ciat.png')}
                 />
               </View>
 
 
             </Modal>
-          }
-        </View>
-
+        }
         <NavigationContainer>
           <Stack.Navigator
           screenOptions={{
@@ -328,12 +322,17 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   splashModal: {
-    width: width,
     height: height,
+    width: width,
+    // backgroundColor: "white",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   splashLogoStyles: {
-    width: 100,
-    height: 60,
+    width: width * 0.7,
+    height: height * 0.7,
+    borderRadius: 10,
+    resizeMode: 'contain'
   }
   
 })

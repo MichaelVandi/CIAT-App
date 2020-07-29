@@ -28,9 +28,28 @@ class Statistics extends Component {
       positiveRate: "",
       totalHospitalized: "",
       criticalCondition: "",
+      hospitalTrend: {
+        info: {
+          upperBound: 1000,
+          average: 500,
+          lowerBound: 2,
+        },
+        data: []
+      },
       trendsByZip: [],
       bedsInUse: [],
       genderDistribution: [],
+      testingTrend: {
+        info: {
+          upperBound: 1000,
+          average: 500,
+          lowerBound: 0,
+          lowMonth: 3,
+          avgMonth: 4,
+          highMonth: 7,
+        },
+        data: []
+      },
     }
     Geolocation.getCurrentPosition(position => {
       longitude = position.coords.longitude;
@@ -106,14 +125,53 @@ class Statistics extends Component {
     fetch(positiveRateApi)
     .then((response) => response.json())
     .then(function(data) {
+      var highestNumOfTests = 0;
+      var lowestNumOfTests = Number.MAX_VALUE;
+      var lowestMonth = Number.MAX_VALUE;
+      var highestMonth = Number.MIN_VALUE;
       var posData = data.features[data.features.length - 1]["attributes"];
       var posRate = posData["percent_positive"];
       var numberOfTests = posData["number_of_tests"];
       var posRateFormatted = posRate.toString() + "%";
+      var testingTrend = {
+        info: {
+          upperBound: 1000,
+          average: 500,
+          lowerBound: 0,
+          lowMonth: 3,
+          avgMonth: 4,
+          highMonth: 7,
+        },
+        data: []
+      };
       that.setState({
         positiveRate: posRateFormatted,
         totalTests: numberOfTests.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
       });
+      var date = new Date(data.features[data.features.length - 1]["attributes"]["date"]).getMonth();
+      console.log("date : " + date);
+      // Get testing volume every day
+      for (var i = 0; i < data.features.length; i++) {
+        let test = data.features[i]["attributes"]["number_of_tests"];
+        var month = new Date(data.features[i]["attributes"]["date"]).getMonth();
+        testingTrend.data.push(test);
+        highestNumOfTests = Math.max(highestNumOfTests, parseInt(test));
+        lowestNumOfTests = Math.min(lowestNumOfTests, parseInt(test));
+        highestMonth = Math.max(highestMonth, month);
+        lowestMonth = Math.min(lowestMonth, month);
+      }
+      var averageNumOfTests = (highestNumOfTests + lowestNumOfTests) / 2;
+      var averageMonth = (highestMonth + lowestMonth) / 2;
+      testingTrend.info.upperBound = Math.round(highestNumOfTests / 1000) * 1000;
+      testingTrend.info.average = Math.round(averageNumOfTests / 1000) * 1000;
+      testingTrend.info.lowerBound = Math.round(lowestNumOfTests / 1000) * 1000;
+      testingTrend.info.lowMonth = Math.round(lowestMonth);
+      testingTrend.info.highestMonth = Math.round(highestMonth);
+      testingTrend.info.avgMonth = Math.round(averageMonth);
+      that.setState({
+        testingTrend: testingTrend,
+      })
+
     });
 
     // Get Total Hospitalized
@@ -121,11 +179,36 @@ class Statistics extends Component {
     fetch(hospitalizedTotal)
     .then((response) => response.json())
     .then(function(data) {
+      var highestCount = Number.MIN_VALUE;
+      var lowestCount = Number.MAX_VALUE;
       var hospitalData = data.features[data.features.length - 1]["attributes"];
       var hospitalTotal = hospitalData["Count_"];
+      var hospitalTrend = {
+        info: {
+          upperBound: 1000,
+          average: 500,
+          lowerBound: 2,
+        },
+        data: []
+      };
       var hospitalizedFormatted = hospitalTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      console.log("highest count " + highestCount);
+      for (var i = 0; i < data.features.length; i++) {
+        let inHospitalNow = data.features[i]["attributes"]["Count_"];
+        hospitalTrend.data.push(inHospitalNow);
+        if (typeof(inHospitalNow) == "number") {
+          highestCount = Math.max(highestCount, parseInt(inHospitalNow));
+          lowestCount = Math.min(lowestCount, parseInt(inHospitalNow));
+        }
+      }
+      var average = (highestCount + lowestCount) / 2;
+      hospitalTrend.info.upperBound = Math.round(highestCount / 1000) * 1000;
+      hospitalTrend.info.lowerBound = Math.round(lowestCount / 1000) * 1000;
+      hospitalTrend.info.average = Math.round(average / 1000) * 1000;
+
       that.setState({
         totalHospitalized: hospitalizedFormatted,
+        hospitalTrend: hospitalTrend,
       })
     });
 
@@ -164,7 +247,6 @@ class Statistics extends Component {
     });
 
     // Get zip code trend
-   
     let allZipsUrl = "https://services.arcgis.com/njFNhDsUCentVYJW/arcgis/rest/services/MDCOVID19_MASTER_ZIP_CODE_CASES/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json";
     fetch(allZipsUrl)
     .then((response) => response.json())
@@ -198,18 +280,35 @@ class Statistics extends Component {
   }
 
   render() {
+    const CUT_OFF = 20;
     console.log("gender dist: " + JSON.stringify(this.state.genderDistribution))
     const randomColor = () => ('#' + ((Math.random() * 0xffffff) << 0).toString(16) + '000000').slice(0, 7)
     const genderData = this.state.genderDistribution
-            .filter((value) => value > 0)
-            .map((value, index) => ({
-                value,
-                svg: {
-                    fill: randomColor(),
-                    onPress: () => console.log('press', index),
-                },
-                key: `pie-${index}`,
-            }))
+    .filter((value) => value > 0)
+    .map((value, index) => ({
+        value,
+        svg: {
+            fill: randomColor(),
+            onPress: () => console.log('press', index),
+        },
+        key: `pie-${index}`,
+    }))
+
+    const Labels = ({ x, y, bandwidth, data }) => (
+      data.map((value, index) => (
+        <Text
+          key={ index }
+          x={ x(index) + (bandwidth / 2) }
+          y={ value < CUT_OFF ? y(value) - 10 : y(value) + 15 }
+          fontSize={ 14 }
+          fill={ value >= CUT_OFF ? 'white' : 'black' }
+          alignmentBaseline={ 'middle' }
+          textAnchor={ 'middle' }
+        >
+            {value}
+        </Text>
+      ))
+    )
     return (
       <ScrollView style={{padding: 10, marginBottom: 20}}>
         {/* View For Total Section */}
@@ -252,11 +351,12 @@ class Statistics extends Component {
 
           </SwiperFlatList>
         </View>
-        {/* View For ZipCode Trend */}
+        
+        {/* View For Testing Volume Trend */}
         <View style={styles.dataElevationView}>
           <SwiperFlatList
               autoplay
-              autoplayDelay={6}
+              autoplayDelay={10}
               autoplayLoop
               index={0}
               showPagination
@@ -264,23 +364,121 @@ class Statistics extends Component {
               style={{paddingBottom: 30}}
             >
             <View>
+              <Text style={styles.chartTitle}>Testing Volume in Maryland</Text>
+              <View style={styles.lineChartView}>
+                {/* Holds the y axis label */}
+                <View style = {styles.yAxisLabel}>
+                  {/* Upper bound */}
+                  <Text>{this.state.testingTrend.info.upperBound}</Text>
+                  <Text>{this.state.testingTrend.info.average}</Text>
+                  <Text>{this.state.testingTrend.info.lowerBound}</Text>
+                </View>
+
+                <View style={styles.theChartItself}>
+                  <LineChart
+                      style={{ height: 200, paddingHorizontal: 10 }}
+                      data={this.state.testingTrend.data}
+                      svg={{ stroke: 'rgb(0,128,128)' }}
+                      contentInset={{ top: 20, bottom: 20 }}
+                    >
+                    <Grid />
+                  </LineChart>
+                  {/* Holds the x axis label */}
+                  <View style={styles.xAxisLabel}>
+                    <Text>{this.state.testingTrend.info.lowMonth}/2020</Text>
+                    <Text>{this.state.testingTrend.info.avgMonth}/2020</Text>
+                    <Text>{this.state.testingTrend.info.highMonth}/2020</Text>
+                  </View>
+                </View> 
+              </View>
+            </View>
+
+            <View>
               <Text style={styles.chartTitle}>Trend of Cases in {this.state.city}</Text>
-              <LineChart
-                  style={{ height: 200, paddingHorizontal: 10 }}
-                  data={this.state.trendsByZip}
-                  svg={{ stroke: 'rgb(0,128,128)' }}
-                  contentInset={{ top: 20, bottom: 20 }}
-                >
-                <Grid />
-              </LineChart>
+              <View style={styles.lineChartView}>
+                {/* Holds the y axis label */}
+                <View style = {styles.yAxisLabel}>
+                  {/* Upper bound */}
+                  <Text>{this.state.testingTrend.info.upperBound}</Text>
+                  <Text>{this.state.testingTrend.info.average}</Text>
+                  <Text>{this.state.testingTrend.info.lowerBound}</Text>
+                </View>
+
+                <View style={styles.theChartItself}>
+                  <LineChart
+                      style={{ height: 200, paddingHorizontal: 10 }}
+                      data={this.state.trendsByZip}
+                      svg={{ stroke: 'rgb(0,128,128)' }}
+                      contentInset={{ top: 20, bottom: 20 }}
+                    >
+                    <Grid />
+                  </LineChart>
+                  {/* Holds the x axis label */}
+                  <View style={styles.xAxisLabel}>
+                    <Text>{this.state.testingTrend.info.lowMonth}/2020</Text>
+                    <Text>{this.state.testingTrend.info.avgMonth}/2020</Text>
+                    <Text>{this.state.testingTrend.info.highMonth}/2020</Text>
+                  </View>
+                </View> 
+              </View>
+            </View>
+            
+            
+            </SwiperFlatList>
+        </View>
+        {/* View For ZipCode Trend */}
+        <View style={styles.dataElevationView}>
+          <SwiperFlatList
+              autoplay
+              autoplayDelay={10}
+              autoplayLoop
+              index={0}
+              showPagination
+              paginationActiveColor="#107E7D"
+              style={{paddingBottom: 30}}
+            >
+
+            <View>
+              <Text style={styles.chartTitle}>Hospitalization</Text>
+              <View style={styles.lineChartView}>
+                {/* Holds the y axis label */}
+                <View style = {styles.yAxisLabel}>
+                  {/* Upper bound */}
+                  <Text>{this.state.hospitalTrend.info.upperBound}</Text>
+                  <Text>{this.state.hospitalTrend.info.average}</Text>
+                  <Text>{this.state.hospitalTrend.info.lowerBound}</Text>
+                </View>
+
+                <View style={styles.theChartItself}>
+                  <BarChart style={{ height: 200 }} data={this.state.hospitalTrend.data} 
+                      svg={{ fill: 'rgb(0,128,128)' }} contentInset={{ top: 30, bottom: 30 }}>
+                    <Grid />
+                  </BarChart>
+                  {/* Holds the x axis label */}
+                  <View style={styles.xAxisLabel}>
+                    <Text>{this.state.testingTrend.info.lowMonth}/2020</Text>
+                    <Text>{this.state.testingTrend.info.avgMonth}/2020</Text>
+                    <Text>{this.state.testingTrend.info.highMonth}/2020</Text>
+                  </View>
+                </View>
+              </View>
             </View>
 
             <View>
               <Text style={styles.chartTitle}>ICU and Acute Beds Currently in use</Text>
-              <BarChart style={{ height: 200 }} data={this.state.bedsInUse} svg={{ fill: 'rgb(0,128,128)' }} contentInset={{ top: 30, bottom: 30 }}>
+              <BarChart 
+                style={{ height: 200 }} 
+                data={this.state.bedsInUse} 
+                svg={{ fill: 'rgb(0,128,128)' }} 
+                contentInset={{ top: 30, bottom: 30 }}
+                spacing={0.2}
+                gridMin={0}
+                >
                 <Grid />
+                {/* <Labels/> */}
               </BarChart>
               <View style={styles.bottomTitle}>
+
                 <Text>Acute</Text>
                 <Text>ICU</Text>
               </View>
@@ -304,6 +502,10 @@ class Statistics extends Component {
             <View>
               <Text style={styles.chartTitle}>Positive Cases by Gender</Text>
               <PieChart style={{ height: 200 }} data={genderData}/>
+              <View style={styles.bottomTitle}>
+                <Text>Male</Text>
+                <Text>Female</Text>
+              </View>
             </View>
             
             
@@ -346,24 +548,35 @@ const styles = StyleSheet.create({
     },
     dataElevationView: {
       backgroundColor: "white",
-      borderRadius: 10,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2
-      },
       marginBottom: 10,
-      paddingVertical: 15,
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5
     },
     bottomTitle: {
       display: 'flex',
       flexDirection: 'row',
-      width: deviceWidth * 0.8,
+      width: deviceWidth * 0.92,
       justifyContent: 'space-around',
-    }
+    },
+    lineChartView: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: deviceWidth * 0.935,
+    },
+    yAxisLabel: {
+      height: 200,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-evenly',
+      marginLeft: 2
+    },
+    theChartItself: {
+      width: '100%',
+    },
+    xAxisLabel: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
+    },
 
   });
 
