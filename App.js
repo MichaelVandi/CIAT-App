@@ -18,11 +18,16 @@ import About from './app/components/menu/about';
 import PrivacyPolicy from './app/components/menu/privacyPolicy';
 import Notification from './app/components/menu/notifications';
 import Language from './app/components/menu/language';
+import Faq from './app/components/menu/faq';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+// TODO: Remember to remove this so warnings reappear.
+console.disableYellowBox = true;
+
 const requestFineLocationPermission = async() => {
   try {
     const granted = await PermissionsAndroid.requestMultiple([
@@ -68,7 +73,13 @@ class App extends React.Component {
   }
   componentDidMount() {
     this.removeSplash();
+    // Start the bluetooth thread for contact tracing
+    // this.handleBluetoothThread();
   }
+  // handleBluetoothThread = () => {
+  //   bluetoothThread.startTracing();
+  //   // Listen for any call backs here
+  // }
 
   onMenuButtonPressed = () => {
     // console.log('menu pressed');
@@ -96,7 +107,7 @@ class App extends React.Component {
     // const [active, setActive] = React.useState(false);
     return(
       <PaperProvider theme = {theme}>
-                <Drawer.Section title="More Functions">
+                <Drawer.Section title=" ">
                 <Drawer.Item
                 label="About CIAT"
                 onPress={() =>{
@@ -128,6 +139,12 @@ class App extends React.Component {
                 label="FAQ"
                 // active={active === 'faq'}
                 // onPress={() =>  setActive('faq')}
+                onPress={() =>{
+                  this.setState({
+                    menuVisible: true,
+                    menuViewToShow: 'FAQ',
+                  })
+                }}
                 />
                 <Drawer.Item
                 label="Privacy Policy"
@@ -167,7 +184,7 @@ class App extends React.Component {
       case "Language":
         return (<Language/>);
       case "FAQ":
-        return "faq";
+        return <Faq/>;
       case "Notifications":
         return (<Notification/>);
       
@@ -256,7 +273,7 @@ class App extends React.Component {
             >
             <View style={styles.modalView}>
               <TouchableOpacity onPress={() => this.closeMenu()}>
-                <Icon ios="ios-close-circle" android="md-close-circle" color="#2D3047"
+                <Icon ios="ios-close-circle" android="md-close-circle" color="grey"
                 style={{padding: 10}} />
               </TouchableOpacity>
               {this.ShowMenu()}
@@ -307,19 +324,18 @@ const styles = StyleSheet.create({
     marginTop: 22
   },
   modalView: {
-    margin: 20,
-    height: '90%',
+    marginTop: 56,
+    height: '100%',
     backgroundColor: "white",
-    borderRadius: 20,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+    // elevation: 5
   },
   splashModal: {
     height: height,

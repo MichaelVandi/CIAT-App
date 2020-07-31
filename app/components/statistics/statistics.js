@@ -239,8 +239,16 @@ class Statistics extends Component {
       var male = genderData["Male"];
       var female = genderData["Female"];
       var genderDistribution = [];
-      genderDistribution.push(male);
-      genderDistribution.push(female);
+      genderDistribution.push({
+        key: 1,
+        amount: female,
+        svg: { fill: '#2D3047' }
+      });
+      genderDistribution.push({
+        key: 0,
+        amount: male,
+        svg: { fill: '#088A85' }
+      });
       that.setState({
         genderDistribution: genderDistribution,
       })
@@ -283,32 +291,37 @@ class Statistics extends Component {
     const CUT_OFF = 20;
     console.log("gender dist: " + JSON.stringify(this.state.genderDistribution))
     const randomColor = () => ('#' + ((Math.random() * 0xffffff) << 0).toString(16) + '000000').slice(0, 7)
-    const genderData = this.state.genderDistribution
-    .filter((value) => value > 0)
-    .map((value, index) => ({
-        value,
-        svg: {
-            fill: randomColor(),
-            onPress: () => console.log('press', index),
-        },
-        key: `pie-${index}`,
-    }))
+    // const genderData = this.state.genderDistribution
+    // .filter((value) => value > 0)
+    // .map((value, index) => ({
+    //     value,
+    //     svg: {
+    //         fill: randomColor(),
+    //         onPress: () => console.log('press', index),
+    //     },
+    //     key: `pie-${index}`,
+    // }))
 
-    const Labels = ({ x, y, bandwidth, data }) => (
-      data.map((value, index) => (
-        <Text
-          key={ index }
-          x={ x(index) + (bandwidth / 2) }
-          y={ value < CUT_OFF ? y(value) - 10 : y(value) + 15 }
-          fontSize={ 14 }
-          fill={ value >= CUT_OFF ? 'white' : 'black' }
-          alignmentBaseline={ 'middle' }
-          textAnchor={ 'middle' }
-        >
-            {value}
-        </Text>
-      ))
-    )
+    const Labels = ({ slices, height, width }) => {
+      return slices.map((slice, index) => {
+        const { labelCentroid, pieCentroid, data } = slice;
+        return (
+          <Text
+            key={index}
+            x={pieCentroid[ 0 ]}
+            y={pieCentroid[ 1 ]}
+            fill={'white'}
+            textAnchor={'middle'}
+            alignmentBaseline={'middle'}
+            fontSize={24}
+            stroke={'black'}
+            strokeWidth={0.2}
+            >
+            {data.amount}
+          </Text>
+        )
+      })
+    }
     return (
       <ScrollView style={{padding: 10, marginBottom: 20}}>
         {/* View For Total Section */}
@@ -501,7 +514,15 @@ class Statistics extends Component {
             >
             <View>
               <Text style={styles.chartTitle}>Positive Cases by Gender</Text>
-              <PieChart style={{ height: 200 }} data={genderData}/>
+              <PieChart 
+                style={{ height: 200 }} 
+                data={this.state.genderDistribution}
+                valueAccessor={({ item }) => item.amount}
+                spacing={0}
+                outerRadius={'95%'}
+              >
+              {/* <Labels/> */}
+              </PieChart>
               <View style={styles.bottomTitle}>
                 <Text>Male</Text>
                 <Text>Female</Text>
