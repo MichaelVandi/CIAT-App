@@ -2,7 +2,7 @@
 
 CIAT is a lightweight app that traces COVID-19 cases around the greater Maryland area and
 notifies users when they may have been in contact with someone who tested positive. The core
-operations of the app rely on the [DP-3T](https://github.com/DP-3T/documents/blob/master/DP3T%20White%20Paper.pdf)algorithm.
+operations of the app rely on the [DP-3T](https://github.com/DP-3T/documents/blob/master/DP3T%20White%20Paper.pdf) algorithm.
 
 ## Features Include
 
