@@ -28,6 +28,5 @@ The anonymous Contact Tracing feature works seamlessly in the background using t
 - Adam Mizell
 - Stephanie Parey
 - Michael Vandi
-- Dr Giovanni Vincenti (Supervisor)
 
 Learn more [here](https://ciat-app.web.app)
